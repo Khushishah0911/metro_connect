@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ahmedabad Metro Card Generator</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Single centered panel so card shows exactly where form was */
+    .container {
+      width: 100%;
+      max-width: 520px;
+    }
+
+    .panel {
+      position: relative;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      padding: 28px;
+    }
+
+    .hidden { display: none !important; }
+
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 10px;
+      font-size: 2rem;
+      font-weight: 700;
+    }
+    h2 {
+      text-align: center;
+      color: #34495e;
+      margin-bottom: 20px;
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .form-group { margin-bottom: 16px; }
+    #formView a{
+      color: #34495e;
+      text-decoration: none;
+      
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #555;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"] {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e1e8ed;
+      border-radius: 10px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      background: #fafbfc;
+    }
+    input:focus {
+      outline: none;
+      border-color: #667eea;
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .generate-btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 6px;
+    }
+    .generate-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+    }
+
+    .error {
+      color: #e74c3c;
+      font-size: 12px;
+      margin-top: 6px;
+      display: none;
+    }
+
+    .duplicate-message {
+      background-color: #f8d7da;
+      color: #721c24;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      text-align: center;
+      display: none;
+    }
+    .duplicate-message.show { display: block; }
+
+    /* Card view */
+    .card-view {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    /* capture-pad gives a little breathing room so html2canvas never trims bottom pixel */
+    .capture-pad {
+      padding: 8px;        /* Important to avoid any clipping on export */
+      border-radius: 18px; /* match-ish card rounding */
+      background: transparent;
+    }
+
+    .metro-card {
+      width: 350px;
+      height: 220px;
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      border-radius: 15px;
+      padding: 20px;
+      color: white;
+      position: relative;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+      overflow: hidden; /* keeps contents inside rounded corners */
+      /* no transforms on the element we capture (prevents html2canvas rounding issues) */
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .metro-logo {
+      font-size: 24px;
+      font-weight: 800;
+      color: #00d4aa;
+      letter-spacing: 0.5px;
+    }
+
+    .metro-title {
+      font-size: 13px;
+      color: #a8d8ff;
+      margin-top: 2px;
+    }
+
+    .card-chip {
+      width: 35px;
+      height: 28px;
+      background: linear-gradient(145deg, #ffd700, #ffed4a);
+      border-radius: 4px;
+      margin-bottom: 12px;
+      position: relative;
+    }
+    .card-chip::before {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 25px; height: 18px;
+      background: #daa520;
+      border-radius: 2px;
+    }
+
+    .card-number {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      margin-bottom: 12px;
+      color: #00d4aa;
+      font-family: 'Courier New', Courier, monospace;
+    }
+
+    .card-details {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+    }
+
+    .card-name {
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      max-width: 190px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .card-expiry { text-align: right; }
+    .expiry-label { font-size: 10px; color: #a8d8ff; margin-bottom: 3px; }
+    .expiry-date { font-size: 12px; font-weight: 700; }
+
+    .card-bg-pattern {
+      position: absolute;
+      top: -50px; right: -50px;
+      width: 200px; height: 200px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 50%;
+    }
+
+    .metro-icon {
+      position: absolute;
+      bottom: 67px; right: 13px;
+      font-size: 40px;
+      opacity: 0.3;
+      color: #00d4aa;
+      line-height: 1;
+    }
+
+    .action-buttons {
+      width: 100%;
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 4px;
+    }
+
+    .action-btn {
+      padding: 12px 22px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+    #downloadBtn { background: #28a745; color: #fff; }
+    #downloadBtn:hover { background: #218838; transform: translateY(-2px); }
+    #backBtn { background: #6c757d; color: #fff; }
+    #backBtn:hover { background: #5a6268; transform: translateY(-2px); }
+
+    @media (max-width: 420px) {
+      .panel { padding: 20px; }
+      .metro-card { width: 320px; height: 200px; padding: 18px; }
+      .card-number { font-size: 16px; }
+      .metro-icon { bottom: 12px; right: 16px; font-size: 36px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="panel">
+
+      <!-- FORM VIEW -->
+      <div id="formView">
+         <a href="index.html"><span class="icon">&larr;</span></a>
+        <h1>🚇 Metro Card Generator</h1>
+        <h2>Enter Your Details</h2>
+
+        <div class="duplicate-message" id="duplicateMessage" aria-live="polite">
+          A card has already been generated for this phone number.
+        </div>
+
+        <form id="metroForm" novalidate>
+          <div class="form-group">
+            <label for="name">Full Name *</label>
+            <input type="text" id="name" name="name" required />
+            <div class="error" id="nameError">Please enter a valid name</div>
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email Address *</label>
+            <input type="email" id="email" name="email" required />
+            <div class="error" id="emailError">Please enter a valid email</div>
+          </div>
+
+          <div class="form-group">
+            <label for="phone">Phone Number *</label>
+            <input type="tel" id="phone" name="phone" inputmode="numeric" pattern="[0-9]{10}" maxlength="10" required />
+            <div class="error" id="phoneError">Please enter a valid 10-digit phone number</div>
+          </div>
+
+          <div class="form-group">
+            <label for="aadhar">Aadhar Card Number *</label>
+            <input type="text" id="aadhar" name="aadhar" inputmode="numeric" pattern="[0-9]{12}" maxlength="12" required />
+            <div class="error" id="aadharError">Please enter a valid 12-digit Aadhar number</div>
+          </div>
+
+          <button type="submit" class="generate-btn">Generate Metro Card</button>
+        </form>
+      </div>
+
+      <!-- CARD VIEW (replaces form in the same spot) -->
+      <div id="cardView" class="card-view hidden">
+        <!-- small padding wrapper avoids bottom cut in exports -->
+        <div id="capturePad" class="capture-pad">
+          <div class="metro-card" id="metroCard">
+            <div class="card-bg-pattern"></div>
+            <div class="card-header">
+              <div>
+                <div class="metro-logo">METRO</div>
+                <div class="metro-title">Ahmedabad Metro Rail</div>
+              </div>
+            </div>
+
+            <div class="card-chip"></div>
+            <div class="card-number" id="cardNumber">XXXX XXXX XXXX XXXX</div>
+
+            <div class="card-details">
+              <div class="card-name" id="cardName">CARD HOLDER NAME</div>
+              <div class="card-expiry">
+                <div class="expiry-label">EXPIRES</div>
+                <div class="expiry-date" id="cardExpiry">MM/YY</div>
+              </div>
+            </div>
+
+            <div class="metro-icon">🚇</div>
+          </div>
+        </div>
+
+        <div class="action-buttons">
+          <button id="downloadBtn" class="action-btn" type="button">Download Card</button>
+          <button id="backBtn" class="action-btn" type="button">Generate Another</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- html2canvas -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNa5GJQmG2z0S5m3y+0wzTJ8y0m8jf1T/7KZgQpV5qkz1HcO1z2sS7c1Jt+YcHf2hpC3KSq8+0fV6JrXfO3W9g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <script>
+    // In-memory duplicate tracking by phone
+    const generatedCards = new Map();
+    let currentCardData = null;
+
+    // --- Helpers ---
+    function generateCardId() {
+      let id = '';
+      for (let i = 0; i < 4; i++) id += Math.floor(1000 + Math.random() * 9000).toString() + ' ';
+      return id.trim();
+    }
+    function generateExpiryDate() {
+      const date = new Date();
+      date.setFullYear(date.getFullYear() + 5);
+      const m = (date.getMonth() + 1).toString().padStart(2, '0');
+      const y = date.getFullYear().toString().slice(-2);
+      return `${m}/${y}`;
+    }
+
+    // --- Validation ---
+    const validateName   = (name)   => name.trim().length >= 2 && /^[a-zA-Z\s]+$/.test(name.trim());
+    const validateEmail  = (email)  => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    const validatePhone  = (phone)  => /^[6-9][0-9]{9}$/.test(phone);
+    const validateAadhar = (aadhar) => /^[0-9]{12}$/.test(aadhar);
+
+    function showError(fieldId, show = true) {
+      document.getElementById(fieldId + 'Error').style.display = show ? 'block' : 'none';
+    }
+    function showDuplicateMessage(show = true) {
+      document.getElementById('duplicateMessage').classList.toggle('show', show);
+    }
+
+    // Restrict numeric-only
+    document.getElementById('phone').addEventListener('input', e => {
+      e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10);
+    });
+    document.getElementById('aadhar').addEventListener('input', e => {
+      e.target.value = e.target.value.replace(/\D/g, '').slice(0, 12);
+    });
+
+    // --- Form submit ---
+    document.getElementById('metroForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const formData = {
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value.trim(),
+        phone: document.getElementById('phone').value.trim(),
+        aadhar: document.getElementById('aadhar').value.trim()
+      };
+
+      showDuplicateMessage(false);
+      if (generatedCards.has(formData.phone)) {
+        showDuplicateMessage(true);
+        return;
+      }
+
+      const validations = {
+        name: validateName(formData.name),
+        email: validateEmail(formData.email),
+        phone: validatePhone(formData.phone),
+        aadhar: validateAadhar(formData.aadhar)
+      };
+
+      let isValid = true;
+      for (const field in validations) {
+        showError(field, !validations[field]);
+        if (!validations[field]) isValid = false;
+      }
+      if (!isValid) return;
+
+      generateMetroCard(formData);
+    });
+
+    // --- Core ---
+    function generateMetroCard(userData) {
+      const cardData = {
+        ...userData,
+        cardId: generateCardId(),
+        expiryDate: generateExpiryDate(),
+        generatedAt: new Date().toISOString()
+      };
+      generatedCards.set(userData.phone, cardData);
+      currentCardData = cardData;
+
+      // Fill card
+      document.getElementById('cardNumber').textContent = cardData.cardId;
+      document.getElementById('cardName').textContent = cardData.name.toUpperCase();
+      document.getElementById('cardExpiry').textContent = cardData.expiryDate;
+
+      // Swap views (card shows exactly where form was)
+      document.getElementById('formView').classList.add('hidden');
+      document.getElementById('cardView').classList.remove('hidden');
+    }
+
+    async function downloadCard() {
+      const capturePad = document.getElementById('capturePad');
+      if (!capturePad) return;
+
+      try {
+        // Ensure element is fully in layout flow before capture
+        // Padding around the card prevents any bottom cropping by html2canvas.
+        const canvas = await html2canvas(capturePad, {
+          scale: 3,
+          backgroundColor: null,   // keep transparent background behind rounded card
+          useCORS: true,
+          scrollX: 0,
+          scrollY: 0,
+          windowWidth: document.documentElement.clientWidth,
+          windowHeight: document.documentElement.clientHeight
+        });
+
+        // Optional: add tiny safe border to avoid JPEG edge artifacts
+        const a = document.createElement('a');
+        a.href = canvas.toDataURL('image/jpeg', 0.95);
+        a.download = `metro-card-${(currentCardData?.name || 'user').replace(/\s+/g, '-').toLowerCase()}.jpg`;
+        a.click();
+      } catch (err) {
+        console.error('Error generating card image:', err);
+        alert('Could not download the card image. Please try again.');
+      }
+    }
+
+    function resetForm() {
+      document.getElementById('metroForm').reset();
+      showDuplicateMessage(false);
+      ['name','email','phone','aadhar'].forEach(field => showError(field, false));
+
+      // Reset placeholders
+      document.getElementById('cardNumber').textContent = 'XXXX XXXX XXXX XXXX';
+      document.getElementById('cardName').textContent = 'CARD HOLDER NAME';
+      document.getElementById('cardExpiry').textContent = 'MM/YY';
+
+      // Swap back
+      document.getElementById('cardView').classList.add('hidden');
+      document.getElementById('formView').classList.remove('hidden');
+    }
+
+    // Buttons
+    document.getElementById('downloadBtn').addEventListener('click', downloadCard);
+    document.getElementById('backBtn').addEventListener('click', resetForm);
+  </script>
+</body>
+</html>

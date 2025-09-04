@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registration</title>
+  <link rel="stylesheet" href="signup.css">
+</head>
+<body>
+  <div class="login-container">
+
+    <!-- Logo Section -->
+    <div class="logo">
+      <img src="metro_logo.png" alt="Metro Connect Logo">
+    </div>
+
+    <!-- Registration Form -->
+    <h1>Register</h1>
+    <p>Create your account.</p>
+
+    <form id="registerForm">
+      <div class="form-group">
+        <label for="regName">Name</label>
+        <input type="text" id="regName" name="regName" placeholder="Your Name" required>
+      </div>
+
+      <div class="form-group">
+        <label for="regDob">Date of Birth</label>
+        <input type="date" id="regDob" name="regDob" required>
+      </div>
+
+      <div class="form-group">
+        <label for="regPhone">Phone Number</label>
+        <input type="tel" id="regPhone" name="regPhone" placeholder="1234567890" pattern="[0-9]{10}" required>
+      </div>
+
+      <div class="form-group">
+        <label for="regEmail">Email</label>
+        <input type="email" id="regEmail" name="regEmail" placeholder="example@email.com" required>
+      </div>
+
+      <div class="form-group">
+        <label for="regPassword">Password</label>
+        <input type="password" id="regPassword" name="regPassword" placeholder="********" required>
+      </div>
+
+      <div class="form-group">
+        <label for="regConfirmPassword">Confirm Password</label>
+        <input type="password" id="regConfirmPassword" name="regConfirmPassword" placeholder="********" required>
+      </div>
+
+      <button type="submit">Register
+      </button>
+    </form>
+
+    <hr>
+
+   <!-- if already have then login  -->
+    <p>Already have an account?<a href="signin.html">Go to Login Page</a></p>
+
+  <!-- Script linked at bottom for best performance -->
+    <script src="signup.js"></script>
+  
+</body>
+</html>

@@ -3,188 +3,425 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Metro Ticket Booking</title>
-    <link rel="stylesheet" href="Book_Ticket.css">
+    <title>Metro Ticket Booking & Payment</title>
+    <style>
+        /* --- Basic Setup & Fonts --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #28a745;
+            --light-gray: #f0f2f5;
+            --text-color: #333;
+            --border-color: #e0e0e0;
+            --promo-bg-color: #e6f0fc;
+            --promo-text-color: #174ea6;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--light-gray);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        /* --- Main Container --- */
+        .mobile-container {
+            width: 100%;
+            max-width: 400px;
+            height: 812px;
+            background-color: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        section {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            width: 100%;
+        }
+
+        /* --- Header --- */
+        .main-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        .main-header a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .main-header .icon {
+            font-size: 1.5rem;
+            cursor: pointer;
+            margin-right: 15px;
+        }
+
+        /* --- Main Content Area --- */
+        .content-area {
+            padding: 24px;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        /* --- Progress Tracker --- */
+        .progress-tracker { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .step { text-align: center; color: #999; }
+        .step .circle {
+            width: 24px; height: 24px; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            margin: 0 auto 8px; background-color: #e0e0e0; color: white;
+            border: 2px solid #e0e0e0; transition: all 0.3s ease;
+        }
+        .step.active { color: var(--primary-color); }
+        .step.active .circle { background-color: var(--primary-color); border-color: var(--primary-color); }
+
+        /* --- Journey Tabs --- */
+        .journey-tabs { display: flex; border-bottom: 1px solid var(--border-color); margin-bottom: 24px; }
+        .tab { flex: 1; padding: 12px; text-align: center; font-weight: 600; color: #999; cursor: pointer; border-bottom: 3px solid transparent; transition: color 0.3s, border-color 0.3s; }
+        .tab .icon { margin-right: 8px; }
+        .tab.active { color: var(--primary-color); border-bottom-color: var(--primary-color); }
+
+        /* --- Form Elements --- */
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; color: var(--text-color); font-weight: 500; font-size: 0.9rem; }
+        select {
+            width: 100%; padding: 14px; border: 1px solid var(--border-color); border-radius: 8px;
+            background-color: #fafafa; font-size: 1rem; color: #555;
+            -webkit-appearance: none; appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23888' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 14px center;
+        }
+
+        /* --- Passenger Counter --- */
+        .passenger-counter { display: flex; justify-content: space-between; align-items: center; }
+        .counter-controls { display: flex; align-items: center; gap: 16px; }
+        .counter-btn { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border-color); background-color: var(--light-gray); color: var(--text-color); font-size: 1.5rem; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: background-color 0.2s ease; }
+        .counter-btn:hover { background-color: #e0e0e0; }
+        .passenger-count { font-size: 1.2rem; font-weight: 600; min-width: 20px; text-align: center; }
+        
+        /* --- In-Page Promotion Style --- */
+        .card-promo-banner {
+            padding: 12px;
+            margin-top: 20px;
+            border-radius: 8px;
+            background-color: var(--promo-bg-color);
+            color: var(--promo-text-color);
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        /* --- Timetable Notice --- */
+        .timetable-notice { text-align: center; color: var(--primary-color); margin-top: 24px; font-size: 0.85rem; font-weight: 500; }
+        
+        /* --- Payment Screen Specific Styles --- */
+        .ticket-summary { background: #fafafa; border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; margin-bottom: 24px; }
+        .journey-details { display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px dashed var(--border-color); }
+        .station { text-align: center; width: 40%; }
+        .station .label { font-size: 0.8rem; color: #888; }
+        .station p { font-weight: 600; margin: 4px 0 0; word-wrap: break-word; }
+        .journey-details .arrow { font-size: 1.5rem; color: var(--primary-color); }
+        .fare-details { display: flex; justify-content: space-between; align-items: baseline; font-size: 0.9rem; }
+        .fare-amount { font-size: 1.2rem; font-weight: 700; color: var(--accent-color); }
+        .payment-title { font-weight: 600; color: var(--text-color); margin-bottom: 16px; }
+        .payment-options { display: flex; flex-direction: column; gap: 12px; }
+        
+        .payment-method {
+            display: flex; align-items: center; padding: 14px;
+            border: 1px solid var(--border-color); border-radius: 8px;
+            cursor: pointer; transition: all 0.2s ease;
+            text-decoration: none; color: var(--text-color);
+        }
+        .payment-method.selected { border-color: var(--primary-color); background-color: #f0f8ff; }
+        .payment-method:hover { border-color: #aaa; }
+        .payment-method img { width: 28px; margin-right: 16px; }
+        .payment-method span { flex-grow: 1; font-weight: 500; }
+        .arrow-icon { font-size: 1.2rem; color: #ccc; }
+        .payment-method.selected .arrow-icon { color: var(--primary-color); }
+
+        /* --- Action Buttons --- */
+        .action-button {
+            width: 100%;
+            padding: 16px;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        #confirm-ticket-btn {
+            background-color: var(--primary-color);
+            margin-top: 30px;
+        }
+        #confirm-ticket-btn:hover { background-color: #1a252f; }
+
+        #pay-btn {
+            background-color: var(--accent-color);
+            margin: 24px;
+            width: calc(100% - 48px);
+        }
+        #pay-btn:hover { background-color: #218838; }
+
+        .payment-footer {
+             margin-top: auto;
+        }
+        
+        /* Responsive */
+        @media (max-width: 480px) {
+            .mobile-container { border-radius: 0; height: 100vh; }
+        }
+    </style>
 </head>
 <body>
 
     <div class="mobile-container">
-        <header class="main-header">
-            <span class="icon">&larr;</span>
-            <span>Book Ticket</span>
+        
+        <!-- ======================= -->
+        <!-- == BOOKING SECTION == -->
+        <!-- ======================= -->
+        <section id="booking-section">
+            <header class="main-header">
+                <a href="index.html"><span class="icon">&larr;</span></a>
+                <span>Book Ticket</span>
+            </header>
 
-        </header>
+            <main class="content-area">
+                <div class="progress-tracker">
+                    <div class="step active"><div class="circle">1</div><span>Book</span></div>
+                    <div class="step"><div class="circle">2</div><span>Pay</span></div>
+                    <div class="step"><div class="circle">3</div><span>Ride</span></div>
+                </div>
 
-        <main class="booking-content">
+                <div class="journey-tabs">
+                    <div class="tab active" data-tab="single"><span class="icon">↑</span> Single Journey</div>
+                    <div class="tab" data-tab="group"><span class="icon">👥</span> Group Journey</div>
+                </div>
+
+                <form id="booking-form">
+                    <div class="form-group">
+                        <label for="station-from">Station From</label>
+                        <select id="station-from" name="station-from">
+                            <option value="">Select a starting station</option>
+                            <optgroup label="Blue Line">
+                                <option value="Vastral Gam">Vastral Gam</option><option value="Nirant Cross Road">Nirant Cross Road</option><option value="Vastral">Vastral</option><option value="Rabari Colony">Rabari Colony</option><option value="Amraiwadi">Amraiwadi</option><option value="Apparel Park">Apparel Park</option><option value="Kankaria East">Kankaria East</option><option value="Kalupur Railway Station">Kalupur Railway Station</option><option value="Gheekanta">Gheekanta</option><option value="Shahpur">Shahpur</option><option value="Old High Court (Interchange)">Old High Court (Interchange)</option><option value="SP Stadium">SP Stadium</option><option value="Commerce Six Road">Commerce Six Road</option><option value="Gujarat University">Gujarat University</option><option value="Gurukul Road">Gurukul Road</option><option value="Doordarshan Kendra">Doordarshan Kendra</option><option value="Thaltej">Thaltej</option><option value="Thaltej Gam">Thaltej Gam</option>
+                            </optgroup>
+                            <optgroup label="Red Line">
+                                <option value="APMC">APMC</option><option value="Jivraj Park">Jivraj Park</option><option value="Rajiv Nagar">Rajiv Nagar</option><option value="Shreyas">Shreyas</option><option value="Paldi">Paldi</option><option value="Gandhigram">Gandhigram</option><option value="Usmanpura">Usmanpura</option><option value="Vijay Nagar">Vijay Nagar</option><option value="Vadaj">Vadaj</option><option value="Ranip">Ranip</option><option value="Sabarmati Railway Station">Sabarmati Railway Station</option><option value="AEC">AEC</option><option value="Sabarmati">Sabarmati</option><option value="Motera Stadium">Motera Stadium</option>
+                            </optgroup>
+                        </select>
+                    </div>
             
-            <div class="progress-tracker">
-                <div class="step active">
-                    <div class="circle">&#10003;</div>
-                    <span>Book</span>
+                    <div class="form-group">
+                        <label for="station-to">Station To</label>
+                        <select id="station-to" name="station-to">
+                           <option value="">Select a destination station</option>
+                            <optgroup label="Blue Line">
+                                <option value="Vastral Gam">Vastral Gam</option><option value="Nirant Cross Road">Nirant Cross Road</option><option value="Vastral">Vastral</option><option value="Rabari Colony">Rabari Colony</option><option value="Amraiwadi">Amraiwadi</option><option value="Apparel Park">Apparel Park</option><option value="Kankaria East">Kankaria East</option><option value="Kalupur Railway Station">Kalupur Railway Station</option><option value="Gheekanta">Gheekanta</option><option value="Shahpur">Shahpur</option><option value="Old High Court (Interchange)">Old High Court (Interchange)</option><option value="SP Stadium">SP Stadium</option><option value="Commerce Six Road">Commerce Six Road</option><option value="Gujarat University">Gujarat University</option><option value="Gurukul Road">Gurukul Road</option><option value="Doordarshan Kendra">Doordarshan Kendra</option><option value="Thaltej">Thaltej</option><option value="Thaltej Gam">Thaltej Gam</option>
+                            </optgroup>
+                            <optgroup label="Red Line">
+                                <option value="APMC">APMC</option><option value="Jivraj Park">Jivraj Park</option><option value="Rajiv Nagar">Rajiv Nagar</option><option value="Shreyas">Shreyas</option><option value="Paldi">Paldi</option><option value="Gandhigram">Gandhigram</option><option value="Usmanpura">Usmanpura</option><option value="Vijay Nagar">Vijay Nagar</option><option value="Vadaj">Vadaj</option><option value="Ranip">Ranip</option><option value="Sabarmati Railway Station">Sabarmati Railway Station</option><option value="AEC">AEC</option><option value="Sabarmati">Sabarmati</option><option value="Motera Stadium">Motera Stadium</option>
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <div class="passenger-counter" style="display: none;">
+                        <label>No. of Passengers</label>
+                        <div class="counter-controls">
+                            <button type="button" class="counter-btn" id="decrease-btn">-</button>
+                            <span class="passenger-count" id="passenger-count-display">1</span>
+                            <button type="button" class="counter-btn" id="increase-btn">+</button>
+                        </div>
+                    </div>
+                    
+                    <div class="card-promo-banner">
+                        Save 10% on every ride with a Smart Card!
+                    </div>
+
+                    <p class="timetable-notice">Before booking your ticket, kindly refer to the timetable.</p>
+                    
+                    <button type="button" id="confirm-ticket-btn" class="action-button">Confirm Ticket</button>
+                </form>
+            </main>
+        </section>
+
+        <!-- ===================== -->
+        <!-- == PAYMENT SECTION == -->
+        <!-- ===================== -->
+        <section id="payment-section" style="display: none;">
+            <header class="main-header">
+                <span id="back-to-booking-btn" class="icon">&larr;</span>
+                <span>Complete Payment</span>
+            </header>
+
+            <main class="content-area">
+                <div class="progress-tracker">
+                    <div class="step active"><div class="circle">✔</div><span>Book</span></div>
+                    <div class="step active"><div class="circle">2</div><span>Pay</span></div>
+                    <div class="step"><div class="circle">3</div><span>Ride</span></div>
                 </div>
-                <div class="step">
-                    <div class="circle">&#10003;</div>
-                    <span>Pay</span>
-                </div>
-                <div class="step">
-                    <div class="circle">&#10003;</div>
-                    <span>Ride</span>
-                </div>
-            </div>
-
-            <div class="journey-tabs">
-                <div class="tab active" data-tab="single">
-                   <span class="icon">&uarr;</span> Single Journey
-                </div>
-                <div class="tab" data-tab="group">
-                    <span class="icon">👥</span> Group Journey
-<!-- 
-                    <span class="icon">&#1984135;</span> Group Journey -->
-                </div>
-            </div>
-
-            <form>
-<div class="form-group">
-  <label for="station-from">Station From</label>
-  <select id="station-from" name="station-To">
-    <option value="">Please select station From</option>
-
-    <!-- APMC to Motera Stadium -->
-      <option value="apmc">APMC</option>
-      <option value="jivraj_park">Jivraj Park</option>
-      <option value="rajiv_nagar">Rajiv Nagar</option>
-      <option value="shreyas">Shreyas</option>
-      <option value="paldi">Paldi</option>
-      <option value="gandhigram">Gandhigram</option>
-      <option value="old_high_court">Old High Court</option>
-      <option value="usmanpura">Usmanpura</option>
-      <option value="vijay_nagar">Vijay Nagar</option>
-      <option value="vadaj">Vadaj</option>
-      <option value="ranip">Ranip</option>
-      <option value="sabarmati_railway">Sabarmati Railway Station</option>
-      <option value="aec">AEC</option>
-      <option value="sabarmati">Sabarmati</option>
-      <option value="motera_stadium">Motera Stadium</option>
-    </optgroup>
-
-    <!-- Vastral Gam to Thaltej Gam -->
-      <option value="vastral_gam">Vastral Gam</option>
-      <option value="nirant_cross_road">Nirant Cross Road</option>
-      <option value="vastral">Vastral</option>
-      <option value="rabari_colony">Rabari Colony</option>
-      <option value="amraiwadi">Amraiwadi</option>
-      <option value="apparel_park">Apparel Park</option>
-      <option value="kankaria_east">Kankaria East</option>
-      <option value="kalupur">Kalupur Railway Station</option>
-      <option value="gheekanta">Gheekanta</option>
-      <option value="shahpur">Shahpur</option>
-      <option value="old_high_court">Old High Court</option>
-      <option value="sp_stadium">SP Stadium</option>
-      <option value="commerce_six_road">Commerce Six Road</option>
-      <option value="gujarat_university">Gujarat University</option>
-      <option value="gurukul_road">Gurukul Road</option>
-      <option value="doordarshan_kendra">Doordarshan Kendra</option>
-      <option value="thaltej">Thaltej</option>
-      <option value="thaltej_gam">Thaltej Gam</option>
-    </optgroup>
-
-    <!-- (Motera to Sector-1) -->
-      <option value="motera_stadium">Motera Stadium</option>
-      <option value="gnlu">GNLU</option>
-      <option value="raysan">Raysan</option>
-      <option value="randesan">Randesan</option>
-      <option value="dholakuva_circle">Dholakuva Circle</option>
-      <option value="infocity">Infocity</option>
-      <option value="sector_1">Sector-1</option>
-    </optgroup>
-
-    <!-- (Motera to GIFT City) -->
-      <option value="gnlu">GNLU</option>
-      <option value="gift_city">GIFT City</option>
-    </optgroup>
-  </select>
-</div>
- 
-                <div class="form-group">
-  <label for="station-from">Station To</label>
-  <select id="station-from" name="station-from">
-    <option value="">Please select station To</option>
-
-    <!-- APMC to Motera Stadium -->
-      <option value="apmc">APMC</option>
-      <option value="jivraj_park">Jivraj Park</option>
-      <option value="rajiv_nagar">Rajiv Nagar</option>
-      <option value="shreyas">Shreyas</option>
-      <option value="paldi">Paldi</option>
-      <option value="gandhigram">Gandhigram</option>
-      <option value="old_high_court">Old High Court</option>
-      <option value="usmanpura">Usmanpura</option>
-      <option value="vijay_nagar">Vijay Nagar</option>
-      <option value="vadaj">Vadaj</option>
-      <option value="ranip">Ranip</option>
-      <option value="sabarmati_railway">Sabarmati Railway Station</option>
-      <option value="aec">AEC</option>
-      <option value="sabarmati">Sabarmati</option>
-      <option value="motera_stadium">Motera Stadium</option>
-    </optgroup>
-
-    <!-- Vastral Gam to Thaltej Gam -->
-      <option value="vastral_gam">Vastral Gam</option>
-      <option value="nirant_cross_road">Nirant Cross Road</option>
-      <option value="vastral">Vastral</option>
-      <option value="rabari_colony">Rabari Colony</option>
-      <option value="amraiwadi">Amraiwadi</option>
-      <option value="apparel_park">Apparel Park</option>
-      <option value="kankaria_east">Kankaria East</option>
-      <option value="kalupur">Kalupur Railway Station</option>
-      <option value="gheekanta">Gheekanta</option>
-      <option value="shahpur">Shahpur</option>
-      <option value="old_high_court">Old High Court</option>
-      <option value="sp_stadium">SP Stadium</option>
-      <option value="commerce_six_road">Commerce Six Road</option>
-      <option value="gujarat_university">Gujarat University</option>
-      <option value="gurukul_road">Gurukul Road</option>
-      <option value="doordarshan_kendra">Doordarshan Kendra</option>
-      <option value="thaltej">Thaltej</option>
-      <option value="thaltej_gam">Thaltej Gam</option>
-    </optgroup>
-
-    <!-- (Motera to Sector-1) -->
-      <option value="motera_stadium">Motera Stadium</option>
-      <option value="gnlu">GNLU</option>
-      <option value="raysan">Raysan</option>
-      <option value="randesan">Randesan</option>
-      <option value="dholakuva_circle">Dholakuva Circle</option>
-      <option value="infocity">Infocity</option>
-      <option value="sector_1">Sector-1</option>
-    </optgroup>
-
-    <!-- (Motera to GIFT City) -->
-      <option value="gnlu">GNLU</option>
-      <option value="gift_city">GIFT City</option>
-    </optgroup>
-  </select>
-</div>
-
-                <div class="passenger-counter">
-                    <label>No. of Passengers</label>
-                    <div class="counter-controls">
-                        <button type="button" class="counter-btn" id="decrease-btn">-</button>
-                        <span class="passenger-count" id="passenger-count">1</span>
-                        <button type="button" class="counter-btn" id="increase-btn">+</button>
+                
+                <div class="ticket-summary">
+                    <div class="journey-details">
+                        <div class="station"><span class="label">From</span><p id="summary-from-station">--</p></div>
+                        <div class="arrow">&rarr;</div>
+                        <div class="station"><span class="label">To</span><p id="summary-to-station">--</p></div>
+                    </div>
+                    <div class="fare-details">
+                        <span>Passengers: <strong id="summary-passenger-count">1</strong></span>
+                        <span>Total Fare: <strong class="fare-amount" id="summary-total-fare">₹ --</strong></span>
                     </div>
                 </div>
 
-                <p class="timetable-notice">
-                    Before booking your ticket, kindly refer to the timetable
-                </p>
-            </form>
-        </main>
-<!-- payment -->
-        <button class="confirm-btn" onclick="location.href='pay.html'">Confirm Ticket</button>
+                <h3 class="payment-title">Select a Payment Method</h3>
+
+                <div class="payment-options">
+                    <div class="payment-method" data-method="upi"><img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/UPI-Logo-vector.svg" alt="UPI"><span>UPI</span><span class="arrow-icon">&gt;</span></div>
+                    
+                    <!-- UPDATED: This is now a link to a new page -->
+                    <a href="virtual-card-info.html" class="payment-method" target="_blank">
+                        <img src="card_jpg.jpg" alt="Card">
+                        <span>Virtual Smart Card</span>
+                        <span class="arrow-icon">&gt;</span>
+                    </a>
+                    
+                    <div class="payment-method" data-method="wallet"><img src="wallet.jpg" alt="Wallet"><span>Wallets</span><span class="arrow-icon">&gt;</span></div>
+                </div>
+            </main>
+            
+            <div class="payment-footer">
+                 <button type="button" id="pay-btn" class="action-button">Pay Securely</button>
+            </div>
+        </section>
+
     </div>
 
-    <script src="Book_Ticket.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- Sections ---
+            const bookingSection = document.getElementById('booking-section');
+            const paymentSection = document.getElementById('payment-section');
+
+            // --- Booking Elements ---
+            const passengerCounter = document.querySelector('.passenger-counter');
+            const passengerCountDisplay = document.getElementById('passenger-count-display');
+            const increaseBtn = document.getElementById('increase-btn');
+            const decreaseBtn = document.getElementById('decrease-btn');
+            const tabs = document.querySelectorAll('.tab');
+            const stationFromSelect = document.getElementById('station-from');
+            const stationToSelect = document.getElementById('station-to');
+            const confirmTicketBtn = document.getElementById('confirm-ticket-btn');
+
+            // --- Payment Elements ---
+            const backToBookingBtn = document.getElementById('back-to-booking-btn');
+            const summaryFrom = document.getElementById('summary-from-station');
+            const summaryTo = document.getElementById('summary-to-station');
+            const summaryPassengers = document.getElementById('summary-passenger-count');
+            const summaryFare = document.getElementById('summary-total-fare');
+            const payBtn = document.getElementById('pay-btn');
+            const paymentMethods = document.querySelectorAll('.payment-method');
+            
+            let passengerCount = 1;
+
+            // --- Booking Logic ---
+            function updatePassengerDisplay() {
+                passengerCountDisplay.textContent = passengerCount;
+                decreaseBtn.disabled = passengerCount === 1;
+            }
+
+            increaseBtn.addEventListener('click', () => { passengerCount++; updatePassengerDisplay(); });
+            decreaseBtn.addEventListener('click', () => { if (passengerCount > 1) { passengerCount--; updatePassengerDisplay(); } });
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    if (tab.dataset.tab === 'group') {
+                        passengerCounter.style.display = 'flex';
+                    } else {
+                        passengerCounter.style.display = 'none';
+                        passengerCount = 1;
+                        updatePassengerDisplay();
+                    }
+                });
+            });
+
+            // --- Transition to Payment Screen ---
+            confirmTicketBtn.addEventListener('click', () => {
+                const fromStation = stationFromSelect.value;
+                const toStation = stationToSelect.value;
+
+                if (!fromStation || !toStation) {
+                    alert('Please select both a starting and destination station.');
+                    return;
+                }
+                if (fromStation === toStation) {
+                    alert('Starting and destination stations cannot be the same.');
+                    return;
+                }
+                
+                const stationCount = Math.abs(stationFromSelect.selectedIndex - stationToSelect.selectedIndex);
+                let singleFare = 0;
+
+                if (stationCount <= 3) { singleFare = 5; } 
+                else if (stationCount <= 7) { singleFare = 10; } 
+                else if (stationCount <= 11) { singleFare = 15; } 
+                else if (stationCount <= 15) { singleFare = 20; } 
+                else { singleFare = 25; }
+
+                const totalFare = singleFare * passengerCount;
+
+                // --- Update Summary Details ---
+                summaryFrom.textContent = fromStation;
+                summaryTo.textContent = toStation;
+                summaryPassengers.textContent = passengerCount;
+                summaryFare.textContent = `₹ ${totalFare.toFixed(2)}`;
+                payBtn.textContent = `Pay ₹${totalFare.toFixed(2)} Securely`;
+
+                // --- Switch Views ---
+                bookingSection.style.display = 'none';
+                paymentSection.style.display = 'flex';
+            });
+
+            // --- Payment Logic ---
+            backToBookingBtn.addEventListener('click', () => {
+                paymentSection.style.display = 'none';
+                bookingSection.style.display = 'flex';
+            });
+            
+            // This now skips the link, only applying to actual buttons
+            document.querySelectorAll('.payment-method:not(a)').forEach(method => {
+                method.addEventListener('click', () => {
+                    document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('selected'));
+                    method.classList.add('selected');
+                });
+            });
+            
+            payBtn.addEventListener('click', () => {
+                const selectedMethod = document.querySelector('.payment-method.selected');
+                if (selectedMethod) {
+                    alert(`Simulating payment with ${selectedMethod.dataset.method.toUpperCase()}... Success! Your QR ticket would be generated now.`);
+                } else {
+                    alert('Please select a payment method.');
+                }
+            });
+        });
+    </script>
 
 </body>
 </html>
