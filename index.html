@@ -19,13 +19,13 @@
     <!-- Navigation -->
     <nav class="nav-links" id="navLinks">
       <ul>
-        <li><a href="Ncmc.html">Smart Card</a></li>
-        <li><a href="Book_Ticket.html">Book Ticket</a></li>
-        <li><a href="#">View Ticket</a></li>
-        <li><a href="Metro_map.html" target="_blank">Map</a></li>
-        <li><a href="#">Schedule</a></li>
-        <li><a href="Timetable.html" target="_blank">Time-table</a></li>
-        <li><a href="#">Help</a></li>
+        <li><a href="#" onclick="checkAuth(event, 'Ncmc.html')">Smart Card</a></li>
+        <li><a href="#" onclick="checkAuth(event, 'Book_Ticket.html')">Book Ticket</a></li>
+        <li><a href="#" onclick="checkAuth(event, 'View_Ticket.html')">View Ticket</a></li>
+        <li><a href="#" onclick="checkAuth(event, 'Metro_map.html')">Map</a></li>
+        <li><a href="#" onclick="checkAuth(event, 'Schedule.html')">Schedule</a></li>
+        <li><a href="#" onclick="checkAuth(event, 'Timetable.html')">Time-table</a></li>
+        <li><a href="#" onclick="checkAuth(event, 'Help.html')">Help</a></li>
       </ul>
     </nav>
 
@@ -38,7 +38,7 @@
     <div class="hero-content">
       <h1>Seamless Metro Travel</h1>
       <p>Book tickets, view routes, and check schedules – all in one place.</p>
-      <a href="Book_Ticket.html" class="hero-btn">Book Now</a>
+      <a href="#" onclick="checkAuth(event, 'Book_Ticket.html')" class="hero-btn">Book Now</a>
     </div>
   </section>
 
@@ -47,7 +47,7 @@
     <div class="feature-card">
       <h2>💳 Smart Card</h2>
       <p> For Easy Travel In Metro Book Your Own Card</p>
-      <a href="NCMC.html">Get Smart Card for Smart Ride → </a>
+      <a href="#" onclick="checkAuth(event, 'NCMC.html')">Get Smart Card for Smart Ride → </a>
     </div>
 
     <div class="feature-card">
@@ -60,47 +60,75 @@
     <div class="feature-card">
       <h2>📄 View Ticket</h2>
       <p>Access and manage your previously booked tickets easily.</p>
-      <a href="#">View Tickets →</a>
+      <a href="#" onclick="checkAuth(event, 'View_Ticket.html')">View Tickets →</a>
     </div>
+
     <div class="feature-card">
       <h2>📅 Time-Table</h2>
       <p>Browse station-wise time-tables for better planning.</p>
-      <a href="Timetable.html">View Time-table →</a>
+      <a href="#" onclick="checkAuth(event, 'Timetable.html')">View Time-table →</a>
     </div>
-
 
     <div class="feature-card">
       <h2>🕒 Schedule</h2>
       <p>Get live schedule updates and train frequency details.</p>
-      <a href="#">Check Schedule →</a>
+      <a href="#" onclick="checkAuth(event, 'Schedule.html')">Check Schedule →</a>
     </div>
+
     <div class="feature-card">
       <h2>🗺️ Metro Map</h2>
       <p>Navigate the metro system with our interactive map.</p>
-      <a href="Metro_map.html">Open Metro Map → </a>
+      <a href="#" onclick="checkAuth(event, 'Metro_map.html')">Open Metro Map → </a>
     </div>
 
     <div class="feature-card">
       <h2>❓ Help </h2>
       <p>Need assistance? Reach out to our support team.</p>
-      <a href="#">Get Help →</a>
+      <a href="#" onclick="checkAuth(event, 'Help.html')">Get Help →</a>
     </div>
   </section>
-
 
   <!-- Footer -->
   <footer>
     <p>&copy; 2025 Metro Connect. All rights reserved.</p>
     <p>Email: support@metroconnect.com | Phone: (123) 456-7890</p>
+    <button onclick="logout()">Logout</button>
   </footer>
 
-  <!-- JS for Mobile Menu -->
+  <!-- JS -->
   <script>
+    // Mobile Menu Toggle
     const menuBtn = document.getElementById('menuBtn');
     const navLinks = document.getElementById('navLinks');
     menuBtn.addEventListener('click', () => {
       navLinks.classList.toggle('active');
     });
+
+    // Authentication Check
+    function checkAuth(event, targetPage) {
+      const loggedIn = localStorage.getItem("loggedIn");
+
+      if (!loggedIn) {
+        event.preventDefault(); // stop normal navigation
+        alert("Please login first!");
+        window.location.href = "signin.html"; // redirect to signin page
+      } else {
+        window.location.href = targetPage; // allow access
+      }
+    }
+
+    // Logout
+    function logout() {
+      localStorage.removeItem("loggedIn");
+      alert("You have logged out!");
+      window.location.href = "index.html";
+    }
+
+    // after successful login
+    localStorage.setItem("loggedIn", "true");
+    window.location.href = "index.html"; // back to homepage
+  </script>
+
   </script>
 </body>
 
